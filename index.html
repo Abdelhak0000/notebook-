@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>مفكرتي — واجبات مدرسية</title>
+
+  <!-- ربط ملف CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  
+<div class="app">
+  <header>
+    <div>
+      <h1>مفكرتي للواجبات</h1>
+      <div class="small">نظام بسيط: مواد → واجبات → حالة (تم / لم يتم)</div>
+    </div>
+    <div class="right">
+      <div id="stats" class="small">جاري التحميل...</div>
+      <button id="resetBtn" class="btn btn-ghost">إعادة تعيين</button>
+    </div>
+  </header>
+
+  <!-- الرئيسية -->
+  <main id="home">
+    <section class="subjects" id="subjectsContainer"></section>
+  </main>
+
+  <!-- صفحة المادة -->
+  <section id="subjectPage" class="subject-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <div>
+        <button id="backBtn" class="btn btn-ghost">← العودة</button>
+      </div>
+      <div style="text-align:right">
+        <div id="subjectName" style="font-weight:800"></div>
+        <div id="subjectInfo" class="small"></div>
+      </div>
+      <div style="text-align:left">
+        <button id="addTaskBtn" class="btn btn-primary">+ إضافة واجب</button>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <label>فرز:</label>
+      <select id="sortSelect" style="width:180px">
+        <option value="due_asc">أقرب موعد</option>
+        <option value="due_desc">أبعد موعد</option>
+        <option value="created_desc">الأحدث أولاً</option>
+      </select>
+      <label>عرض:</label>
+      <select id="filterSelect" style="width:160px">
+        <option value="all">الكل</option>
+        <option value="pending">لم تُنجز</option>
+        <option value="done">تمت</option>
+      </select>
+    </div>
+
+    <div class="tasks" id="tasksContainer"></div>
+  </section>
+</div>
+
+<!-- modal إضافة/تعديل مادة -->
+<div id="subjectModal" class="modal-back" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div id="subjectModalTitle" style="font-weight:800">إضافة مادة</div>
+    <label>اسم المادة</label>
+    <input id="subjectNameInput" type="text" placeholder="مثال: رياضيات">
+    <label>لون (اختياري)</label>
+    <input id="subjectColorInput" type="text" placeholder="#3b82f6">
+    <div class="modal-actions">
+      <button id="subjectCancel" class="btn btn-ghost">إلغاء</button>
+      <button id="subjectSave" class="btn btn-primary">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal إضافة/تعديل واجب -->
+<div id="taskModal" class="modal-back" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div id="taskModalTitle" style="font-weight:800">إضافة واجب</div>
+    <label>عنوان الواجب</label>
+    <input id="taskTitleInput" type="text" placeholder="مثال: حل التمرين 5">
+    <label>الوصف (اختياري)</label>
+    <textarea id="taskDescInput" placeholder="ملاحظات..."></textarea>
+    <label>تاريخ التسليم (اختياري)</label>
+    <input id="taskDueInput" type="date">
+    <label>الحالة</label>
+    <select id="taskStateInput">
+      <option value="pending">لم يتم</option>
+      <option value="done">تم</option>
+    </select>
+    <div class="modal-actions">
+      <button id="taskCancel" class="btn btn-ghost">إلغاء</button>
+      <button id="taskSave" class="btn btn-primary">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ربط ملف JavaScript -->
+<script src="script.js"></script>
+</body>
+</html>
