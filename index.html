@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>مفكرتي — واجبات مدرسية</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --muted: #6b7280;
+    --accent: linear-gradient(135deg,#6366f1,#3b82f6);
+    --success: #22c55e;
+    --danger: #ef4444;
+    --radius: 14px;
+    font-family: "Noto Naskh Arabic", Tahoma, Arial;
+  }
+  html,body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    direction: rtl;
+  }
+  .app {max-width: 900px; margin: 20px auto; padding: 16px; animation: fadeIn 0.7s ease}
+  header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 26px;
+    background: var(--accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+  }
+  .subjects {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card);
+    padding: 16px;
+    border-radius: var(--radius);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+  .card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+    border: 1px solid #3b82f6;
+  }
+  .add-card {
+    display: flex; align-items: center; justify-content: center;
+    border: 2px dashed rgba(0,0,0,0.1);
+    height: 120px;
+    color: var(--muted);
+    font-weight: 700;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+  }
+  .add-card:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    background: #eef6ff;
+  }
+  .small {font-size: 13px; color: var(--muted)}
+  .right {display: flex; gap: 8px; align-items: center}
+  .btn {
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.25s, transform 0.2s;
+  }
+  .btn:hover {transform: translateY(-2px);}
+  .btn-primary {
+    background: #3b82f6;
+    color: #fff;
+  }
+  .btn-primary:hover {background: #2563eb;}
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+  .btn-ghost:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+  }
+  .subject-page {display: none; animation: fadeIn 0.5s ease}
+  .tasks {display: grid; gap: 12px; margin-top: 14px}
+  .task {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 14px;
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-left: 5px solid #3b82f6;
+  }
+  .task:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  }
+  .muted{color:var(--muted)}
+  .done{opacity:0.7;text-decoration:line-through;color:#16a34a}
+
+  /* modal */
+  .modal-back {
+    position: fixed; inset: 0; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.45); z-index: 50; padding: 16px;
+    animation: fadeIn 0.3s ease;
+  }
+  .modal {
+    background: var(--card);
+    padding: 20px;
+    border-radius: var(--radius);
+    max-width: 520px; width: 100%;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.25);
+    animation: scaleIn 0.3s ease;
+  }
+  label {font-size: 13px; color: var(--muted); display: block; margin-top: 8px}
+  input[type="text"],textarea,input[type="date"],select {
+    width: 100%; padding: 10px; margin-top: 6px;
+    border-radius: 10px; border: 1px solid #e5e7eb; font-size: 14px;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+  }
+  input:focus,textarea:focus,select:focus {
+    border-color: #3b82f6; outline: none;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+  }
+  textarea {min-height: 90px}
+  .modal-actions {display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px}
+  @media(max-width:520px){
+    header {flex-direction: column; align-items: flex-start; gap: 10px}
+  }
+
+  /* Animations */
+  @keyframes fadeIn {from{opacity:0}to{opacity:1}}
+  @keyframes scaleIn {from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3b82f6">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+</head>
+<body>
+  
+<div class="app">
+  <header>
+    <h1>مفكرتي للواجبات</h1>
+    <div class="right">
+      <div id="stats" class="small">جاري التحميل...</div>
+      <button id="resetBtn" class="btn btn-ghost">إعادة تعيين</button>
+    </div>
+  </header>
+
+  <!-- الرئيسية -->
+  <main id="home">
+    <section class="subjects" id="subjectsContainer"></section>
+  </main>
+
+  <!-- صفحة المادة -->
+  <section id="subjectPage" class="subject-page">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <div>
+        <button id="backBtn" class="btn btn-ghost">← العودة</button>
+      </div>
+      <div style="text-align:right">
+        <div id="subjectName" style="font-weight:800"></div>
+        <div id="subjectInfo" class="small"></div>
+      </div>
+      <div style="text-align:left">
+        <button id="addTaskBtn" class="btn btn-primary">+ إضافة واجب</button>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <label>فرز:</label>
+      <select id="sortSelect" style="width:180px">
+        <option value="due_asc">أقرب موعد</option>
+        <option value="due_desc">أبعد موعد</option>
+        <option value="created_desc">الأحدث أولاً</option>
+      </select>
+      <label>عرض:</label>
+      <select id="filterSelect" style="width:160px">
+        <option value="all">الكل</option>
+        <option value="pending">لم تُنجز</option>
+        <option value="done">تمت</option>
+      </select>
+    </div>
+
+    <div class="tasks" id="tasksContainer"></div>
+  </section>
+</div>
+
+<!-- modal إضافة/تعديل مادة -->
+<div id="subjectModal" class="modal-back" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div id="subjectModalTitle" style="font-weight:800">إضافة مادة</div>
+    <label>اسم المادة</label>
+    <input id="subjectNameInput" type="text" placeholder="مثال: رياضيات">
+    <label>لون (اختياري)</label>
+    <input id="subjectColorInput" type="text" placeholder="#3b82f6">
+    <div class="modal-actions">
+      <button id="subjectCancel" class="btn btn-ghost">إلغاء</button>
+      <button id="subjectSave" class="btn btn-primary">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal إضافة/تعديل واجب -->
+<div id="taskModal" class="modal-back" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div id="taskModalTitle" style="font-weight:800">إضافة واجب</div>
+    <label>عنوان الواجب</label>
+    <input id="taskTitleInput" type="text" placeholder="مثال: حل التمرين 5">
+    <label>الوصف (اختياري)</label>
+    <textarea id="taskDescInput" placeholder="ملاحظات..."></textarea>
+    <label>تاريخ التسليم (اختياري)</label>
+    <input id="taskDueInput" type="date">
+    <label>الحالة</label>
+    <select id="taskStateInput">
+      <option value="pending">لم يتم</option>
+      <option value="done">تم</option>
+    </select>
+    <div class="modal-actions">
+      <button id="taskCancel" class="btn btn-ghost">إلغاء</button>
+      <button id="taskSave" class="btn btn-primary">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY = 'oqati_simple_v2';
+let db = { subjects: [], tasks: [] };
+let currentSubject = null;
+
+// DOM
+const subjectsContainer = document.getElementById('subjectsContainer');
+const stats = document.getElementById('stats');
+const resetBtn = document.getElementById('resetBtn');
+
+const subjectModal = document.getElementById('subjectModal');
+const subjectModalTitle = document.getElementById('subjectModalTitle');
+const subjectNameInput = document.getElementById('subjectNameInput');
+const subjectColorInput = document.getElementById('subjectColorInput');
+const subjectSave = document.getElementById('subjectSave');
+const subjectCancel = document.getElementById('subjectCancel');
+
+const taskModal = document.getElementById('taskModal');
+const taskModalTitle = document.getElementById('taskModalTitle');
+const taskTitleInput = document.getElementById('taskTitleInput');
+const taskDescInput = document.getElementById('taskDescInput');
+const taskDueInput = document.getElementById('taskDueInput');
+const taskStateInput = document.getElementById('taskStateInput');
+const taskSave = document.getElementById('taskSave');
+const taskCancel = document.getElementById('taskCancel');
+
+const home = document.getElementById('home');
+const subjectPage = document.getElementById('subjectPage');
+const backBtn = document.getElementById('backBtn');
+const subjectName = document.getElementById('subjectName');
+const subjectInfo = document.getElementById('subjectInfo');
+const addTaskBtn = document.getElementById('addTaskBtn');
+const tasksContainer = document.getElementById('tasksContainer');
+const sortSelect = document.getElementById('sortSelect');
+const filterSelect = document.getElementById('filterSelect');
+
+let editSubjectId = null;
+let editTaskId = null;
+
+// utils
+function uid(prefix='id'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+function save(){ localStorage.setItem(KEY, JSON.stringify(db)); renderOverview(); }
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    db = raw ? JSON.parse(raw) : {subjects:[],tasks:[]};
+  }catch(e){ db = {subjects:[],tasks:[]}; }
+}
+
+// render overview
+function renderOverview(){
+  const totalSub = db.subjects.length;
+  const totalTasks = db.tasks.length;
+  const done = db.tasks.filter(t=>t.state==='done').length;
+  stats.textContent = `${totalSub} مادة · ${done}/${totalTasks} مُنجزة`;
+}
+function renderSubjects(){
+  subjectsContainer.innerHTML = '';
+  const addCard = document.createElement('div'); addCard.className='card add-card';
+  addCard.innerHTML = '<div>+ إضافة مادة</div>';
+  addCard.onclick = ()=>{ openAddSubject(); };
+  subjectsContainer.appendChild(addCard);
+
+  db.subjects.forEach(s=>{
+    const card = document.createElement('div'); card.className='card';
+    const pending = db.tasks.filter(t=>t.subjectId===s.id && t.state!=='done').length;
+    const total = db.tasks.filter(t=>t.subjectId===s.id).length;
+    card.innerHTML = `<div style="display:flex;justify-content:space-between"><div style="font-weight:700">${escapeHtml(s.name)}</div><div class="small">${pending} متبقي</div></div>
+                      <div class="small" style="margin-top:8px">${total} واجبات</div>`;
+    card.onclick = ()=> openSubject(s.id);
+    const actions = document.createElement('div'); actions.style.marginTop='8px'; actions.style.display='flex'; actions.style.gap='6px';
+    const edit = document.createElement('button'); edit.className='btn btn-ghost small'; edit.textContent='تعديل';
+    edit.onclick = (e)=>{ e.stopPropagation(); openEditSubject(s.id); };
+    const del = document.createElement('button'); del.className='btn btn-ghost small'; del.textContent='حذف';
+    del.onclick = (e)=>{ e.stopPropagation(); if(confirm('حذف المادة وكل واجباتها؟')) deleteSubject(s.id); };
+    actions.appendChild(edit); actions.appendChild(del);
+    card.appendChild(actions);
+    subjectsContainer.appendChild(card);
+  });
+}
+
+// subjects actions
+function openAddSubject(){ editSubjectId = null; subjectModalTitle.textContent='إضافة مادة'; subjectNameInput.value=''; subjectColorInput.value=''; showModal(subjectModal); }
+function openEditSubject(id){ editSubjectId = id; const s = db.subjects.find(x=>x.id===id); if(!s) return; subjectModalTitle.textContent='تعديل مادة'; subjectNameInput.value = s.name; subjectColorInput.value = s.color || ''; showModal(subjectModal); }
+function saveSubject(){
+  const name = subjectNameInput.value.trim();
+  const color = subjectColorInput.value.trim() || randomColor();
+  if(!name){ alert('أدخل اسم المادة'); return; }
+  if(editSubjectId){
+    const s = db.subjects.find(x=>x.id===editSubjectId);
+    if(!s) return;
+    s.name = name; s.color = color;
+  } else {
+    db.subjects.push({id: uid('sub'), name, color, createdAt: new Date().toISOString()});
+  }
+  hideModal(subjectModal); save(); renderSubjects();
+}
+function deleteSubject(id){
+  db.tasks = db.tasks.filter(t=>t.subjectId!==id);
+  db.subjects = db.subjects.filter(s=>s.id!==id);
+  if(currentSubject === id){ goHome(); }
+  save(); renderSubjects();
+}
+function openSubject(id){
+  currentSubject = id;
+  const s = db.subjects.find(x=>x.id===id);
+  if(!s) return;
+  subjectName.textContent = s.name;
+  const total = db.tasks.filter(t=>t.subjectId===id).length;
+  const done = db.tasks.filter(t=>t.subjectId===id && t.state==='done').length;
+  subjectInfo.textContent = `${done}/${total} مُنجزة`;
+  home.style.display = 'none';
+  subjectPage.style.display = 'block';
+  renderTasks();
+}
+function goHome(){ currentSubject = null; subjectPage.style.display='none'; home.style.display='block'; renderSubjects(); }
+
+// tasks
+function openAddTask(){ if(!currentSubject) return; editTaskId = null; taskModalTitle.textContent='إضافة واجب'; taskTitleInput.value=''; taskDescInput.value=''; taskDueInput.value=''; taskStateInput.value='pending'; showModal(taskModal); }
+function openEditTask(id){ editTaskId = id; const t = db.tasks.find(x=>x.id===id); if(!t) return; taskModalTitle.textContent='تعديل واجب'; taskTitleInput.value = t.title; taskDescInput.value = t.desc || ''; taskDueInput.value = t.due || ''; taskStateInput.value = t.state || 'pending'; showModal(taskModal); }
+function saveTask(){
+  const title = taskTitleInput.value.trim();
+  if(!title) return alert('أدخل عنوان الواجب');
+  const desc = taskDescInput.value.trim();
+  const due = taskDueInput.value || '';
+  const state = taskStateInput.value || 'pending';
+  if(editTaskId){
+    const t = db.tasks.find(x=>x.id===editTaskId);
+    if(!t) return;
+    t.title = title; t.desc = desc; t.due = due; t.state = state;
+  } else {
+    db.tasks.push({id: uid('task'), subjectId: currentSubject, title, desc, due, state, createdAt: new Date().toISOString()
+        
+        });
+  }
+  hideModal(taskModal);
+  save();
+  renderTasks();
+}
+
+function deleteTask(id){
+  db.tasks = db.tasks.filter(t => t.id !== id);
+  save();
+  renderTasks();
+}
+
+function renderTasks(){
+  if(!currentSubject) return;
+  tasksContainer.innerHTML = '';
+  let tasks = db.tasks.filter(t=>t.subjectId===currentSubject);
+
+  // الترتيب
+  const sort = sortSelect.value;
+  tasks.sort((a,b)=>{
+    if(sort === 'due_asc') return (a.due||'') > (b.due||'') ? 1 : -1;
+    if(sort === 'due_desc') return (a.due||'') < (b.due||'') ? 1 : -1;
+    if(sort === 'created_desc') return (a.createdAt||'') < (b.createdAt||'') ? 1 : -1;
+    return 0;
+  });
+
+  // الفلترة
+  const filter = filterSelect.value;
+  if(filter === 'pending') tasks = tasks.filter(t=>t.state==='pending');
+  if(filter === 'done') tasks = tasks.filter(t=>t.state==='done');
+
+  tasks.forEach(t=>{
+    const el = document.createElement('div');
+    el.className = 'task';
+    if(t.state==='done') el.classList.add('done');
+    el.innerHTML = `
+      <div>
+        <div style="font-weight:700">${escapeHtml(t.title)}</div>
+        ${t.desc ? `<div class="muted small">${escapeHtml(t.desc)}</div>` : ''}
+        ${t.due ? `<div class="small">تسليم: ${t.due}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost small">✏️</button>
+        <button class="btn btn-ghost small">🗑</button>
+      </div>
+    `;
+    const [editBtn, delBtn] = el.querySelectorAll('button');
+    editBtn.onclick = ()=> openEditTask(t.id);
+    delBtn.onclick = ()=> { if(confirm('حذف الواجب؟')) deleteTask(t.id); };
+    tasksContainer.appendChild(el);
+  });
+}
+
+// modals
+function showModal(m){ m.style.display='flex'; }
+function hideModal(m){ m.style.display='none'; }
+
+// helpers
+function randomColor(){
+  const colors = ['#3b82f6','#ef4444','#22c55e','#f59e0b','#8b5cf6','#ec4899'];
+  return colors[Math.floor(Math.random()*colors.length)];
+}
+function escapeHtml(str){ return str.replace(/[&<>'"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// events
+resetBtn.onclick = ()=>{ if(confirm('مسح كل البيانات؟')){ db={subjects:[],tasks:[]}; save(); renderSubjects(); } };
+subjectSave.onclick = saveSubject;
+subjectCancel.onclick = ()=> hideModal(subjectModal);
+taskSave.onclick = saveTask;
+taskCancel.onclick = ()=> hideModal(taskModal);
+backBtn.onclick = goHome;
+addTaskBtn.onclick = openAddTask;
+sortSelect.onchange = renderTasks;
+filterSelect.onchange = renderTasks;
+
+// init
+load();
+save();
+renderSubjects();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(()=> console.log('✅ Service Worker مسجل'))
+    .catch(err=> console.error('فشل التسجيل:', err));
+}
+</script>
+
+</body>
+</html>
