@@ -1,11 +1,10 @@
 {
-  "name": "مفكرتي للواجبات",
+  "name": "مفكرتي — واجبات مدرسية",
   "short_name": "مفكرتي",
-  "lang": "ar",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4f6fb",
-  "theme_color": "#3b82f6",
+  "theme_color": "#4f46e5",
   "orientation": "portrait",
   "icons": [
     {
