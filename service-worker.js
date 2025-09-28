@@ -1,5 +1,5 @@
-const CACHE_NAME = "mofakirati-cache-v1";
-const ASSETS = [
+const CACHE_NAME = "mofakirati-v1";
+const URLS_TO_CACHE = [
   "./",
   "./index.html",
   "./manifest.json",
@@ -7,25 +7,25 @@ const ASSETS = [
   "./icons/icon-512.png"
 ];
 
-// تثبيت وتخزين الملفات
-self.addEventListener("install", e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+// تثبيت Service Worker وتخزين الملفات
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(URLS_TO_CACHE))
   );
 });
 
-// التحديث عند تفعيل
-self.addEventListener("activate", e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+// تفعيل وحذف الكاش القديم
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.map((key) => (key !== CACHE_NAME ? caches.delete(key) : null)))
     )
   );
 });
 
-// جلب الملفات من الكاش أو الشبكة
-self.addEventListener("fetch", e => {
-  e.respondWith(
-    caches.match(e.request).then(res => res || fetch(e.request))
+// استرجاع الملفات من الكاش أو من الإنترنت
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => response || fetch(event.request))
   );
 });
